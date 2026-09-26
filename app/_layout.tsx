@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import { CarritoProvider } from '@/context/CarritoContext';
 import { FavoritosProvider } from '@/context/FavoritosContext';
+import { ConfiguracionProvider } from '@/context/ConfiguracionContext';
 import { useFuentesApp } from '@/hooks/useFuentesApp';
 
 export default function LayoutRaiz() {
@@ -15,17 +16,19 @@ export default function LayoutRaiz() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <FavoritosProvider>
-          <CarritoProvider>
-            <StatusBar style="dark" />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: COLORS.papel },
-              }}
-            />
-          </CarritoProvider>
-        </FavoritosProvider>
+        <ConfiguracionProvider>
+          <FavoritosProvider>
+            <CarritoProvider>
+              <StatusBar style="dark" />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: COLORS.papel },
+                }}
+              />
+            </CarritoProvider>
+          </FavoritosProvider>
+        </ConfiguracionProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

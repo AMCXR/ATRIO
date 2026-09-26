@@ -9,6 +9,7 @@ export const CLAVES_ALMACENAMIENTO = {
   favoritos: 'atrio.favoritos',
   intentosInicioSesion: 'atrio.login.attempts',
   bloqueoInicioSesion: 'atrio.login.lockedUntil',
+  preferenciasConfiguracion: 'atrio.configuracion.preferencias',
 } as const;
 
 export const servicioAlmacenamiento = {
