@@ -1,3 +1,4 @@
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 import { BarraPestanas } from '@/components/navigation/BarraPestanas';
 
@@ -5,7 +6,7 @@ export default function LayoutPestanas() {
   return (
     <Tabs
       screenOptions={{ headerShown: false }}
-      tabBar={(props) => <BarraPestanas {...props} />}
+      tabBar={(props) => <BarraPestanas {...(props as unknown as BottomTabBarProps)} />}
     >
       <Tabs.Screen name="index" options={{ title: 'Inicio' }} />
       <Tabs.Screen name="catalogo" options={{ title: 'Catálogo' }} />

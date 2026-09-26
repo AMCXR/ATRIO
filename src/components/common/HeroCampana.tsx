@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lino,
   },
   degradado: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     top: '40%',
   },
   contenido: {

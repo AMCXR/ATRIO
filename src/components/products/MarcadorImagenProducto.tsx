@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  lleno: StyleSheet.absoluteFillObject,
-  rayas: StyleSheet.absoluteFillObject,
+  lleno: StyleSheet.absoluteFill,
+  rayas: StyleSheet.absoluteFill,
   raya: {
     position: 'absolute',
     left: -200,
