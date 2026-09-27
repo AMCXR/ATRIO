@@ -98,11 +98,11 @@ export function useInicioSesion(): EstadoInicioSesion {
 
     setCargando(true);
     try {
-      await iniciarSesion(correoLimpio, contrasena);
+      const usuario = await iniciarSesion(correoLimpio, contrasena);
       await servicioAlmacenamiento.eliminarDato(CLAVES_ALMACENAMIENTO.intentosInicioSesion);
       await servicioAlmacenamiento.eliminarDato(CLAVES_ALMACENAMIENTO.bloqueoInicioSesion);
       setIntentos(0);
-      router.replace('/(tabs)');
+      router.replace(usuario.rol === 'propietaria' ? '/admin' : '/(tabs)');
     } catch {
       const siguiente = intentos + 1;
       if (siguiente >= INTENTOS_MAXIMOS) {

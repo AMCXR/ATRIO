@@ -15,7 +15,7 @@ import {
   URL_TIENDA,
   VERSION_MINIMA_APP,
 } from '@/constants/app';
-import { servicioAlmacenamiento } from '@/services/storageService';
+import { servicioAutenticacion } from '@/services/servicioAutenticacion';
 import { esVersionAnterior } from '@/utils/version';
 
 export type FaseInicio = 'verificando' | 'reintentando' | 'actualizacion-requerida';
@@ -64,9 +64,9 @@ export function useSplashBootstrap(): EstadoInicioAplicacion {
         return;
       }
 
-      let destino: '/(tabs)' | '/(auth)/login' = '/(auth)/login';
-      const token = await servicioAlmacenamiento.obtenerTokenSesion();
-      if (token) destino = '/(tabs)';
+      let destino: '/(tabs)' | '/(auth)/login' | '/admin' = '/(auth)/login';
+      const usuario = await servicioAutenticacion.obtenerUsuarioActual();
+      if (usuario) destino = usuario.rol === 'propietaria' ? '/admin' : '/(tabs)';
 
       const transcurrido = Date.now() - inicio;
       if (transcurrido < MS_VISUALIZACION_MINIMA_SPLASH) {
