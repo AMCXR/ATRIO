@@ -1,11 +1,11 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '@/constants/colors';
 import { ESPACIO, MEDIDAS, TIPOGRAFIA } from '@/constants/theme';
 import { EncabezadoPantalla } from '@/components/common/EncabezadoPantalla';
 import { FilaOpcionPerfil } from '@/components/profile/FilaOpcionPerfil';
 import { useAuth } from '@/context/AuthContext';
 import { usePerfil } from '@/hooks/usePerfil';
+import { useTema } from '@/hooks/useTema';
 
 export default function PantallaPerfil() {
   const {
@@ -18,9 +18,10 @@ export default function PantallaPerfil() {
     cerrarSesion,
   } = usePerfil();
   const { usuario } = useAuth();
+  const { colores } = useTema();
 
   return (
-    <SafeAreaView style={styles.contenedor} edges={['top']}>
+    <SafeAreaView style={[styles.contenedor, { backgroundColor: colores.papel }]} edges={['top']}>
       <ScrollView>
         <EncabezadoPantalla titulo="Perfil" />
 
@@ -29,6 +30,9 @@ export default function PantallaPerfil() {
           <Text style={styles.dato}>{usuario?.email ?? ''}</Text>
           <Text style={styles.dato}>{usuario?.celular ?? ''}</Text>
           <Text style={styles.dato}>{usuario?.rol === 'propietaria' ? 'PROPIETARIA' : 'CLIENTE'}</Text>
+          <Text style={[styles.nombre, { color: colores.tinta }]}>{usuario.nombre}</Text>
+          <Text style={[styles.dato, { color: colores.textoSecundario }]}>{usuario.correo}</Text>
+          <Text style={[styles.dato, { color: colores.textoSecundario }]}>{usuario.telefono}</Text>
         </View>
 
         <View style={styles.seccion}>
@@ -54,13 +58,13 @@ export default function PantallaPerfil() {
 }
 
 const styles = StyleSheet.create({
-  contenedor: { flex: 1, backgroundColor: COLORS.papel },
+  contenedor: { flex: 1 },
   tarjetaUsuario: {
     paddingHorizontal: MEDIDAS.margenLateral,
     paddingBottom: ESPACIO.lg,
     gap: 2,
   },
-  nombre: { fontFamily: TIPOGRAFIA.titulo, fontSize: 18, color: COLORS.tinta },
-  dato: { fontFamily: TIPOGRAFIA.mono, fontSize: 12, color: COLORS.textoSecundario },
+  nombre: { fontFamily: TIPOGRAFIA.titulo, fontSize: 18 },
+  dato: { fontFamily: TIPOGRAFIA.mono, fontSize: 12 },
   seccion: { marginTop: ESPACIO.lg },
 });
