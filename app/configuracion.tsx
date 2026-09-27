@@ -6,6 +6,7 @@ import { useConfiguracion } from '@/hooks/useConfiguracion';
 import { useTema } from '@/hooks/useTema';
 import { servicioNotificaciones } from '@/services/servicioNotificaciones';
 import { servicioCorreos } from '@/services/servicioCorreos';
+import { servicioBiometria } from '@/services/servicioBiometria';
 import { usuarioMock } from '@/data/usuarioMock';
 
 export default function PantallaConfiguracion() {
@@ -39,6 +40,28 @@ export default function PantallaConfiguracion() {
     }
   };
 
+  const manejarBiometria = async (activar: boolean) => {
+    if (activar) {
+      const disponible = await servicioBiometria.estaDisponible();
+      if (!disponible) {
+        Alert.alert(
+          'No disponible',
+          'Este dispositivo no tiene sensor biométrico, o no tienes ninguna huella/rostro registrado en los ajustes del sistema.',
+        );
+        return;
+      }
+
+      const confirmado = await servicioBiometria.autenticar(
+        'Confirma tu identidad para activar el desbloqueo biométrico',
+      );
+      if (!confirmado) {
+        Alert.alert('No se pudo verificar', 'No se completó la verificación biométrica.');
+        return;
+      }
+    }
+    alternarPreferencia('biometria');
+  };
+
   return (
     <SafeAreaView style={[styles.contenedor, { backgroundColor: colores.papel }]} edges={['top']}>
       <ScrollView>
@@ -65,7 +88,7 @@ export default function PantallaConfiguracion() {
           titulo="Biometría"
           descripcion="Desbloquear con huella o rostro"
           valor={preferencias.biometria}
-          onCambiar={() => alternarPreferencia('biometria')}
+          onCambiar={manejarBiometria}
         />
       </ScrollView>
     </SafeAreaView>
