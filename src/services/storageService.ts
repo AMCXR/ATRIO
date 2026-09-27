@@ -7,6 +7,8 @@ const CLAVE_TOKEN_SESION = 'atrio.auth.token';
 export const CLAVES_ALMACENAMIENTO = {
   carrito: 'atrio.carrito',
   favoritos: 'atrio.favoritos',
+  usuarios: 'atrio.auth.users',
+  usuarioSesion: 'atrio.auth.user',
   intentosInicioSesion: 'atrio.login.attempts',
   bloqueoInicioSesion: 'atrio.login.lockedUntil',
   preferenciasConfiguracion: 'atrio.configuracion.preferencias',

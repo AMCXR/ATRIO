@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { servicioAutenticacion } from '@/services/servicioAutenticacion';
+import { useAuth } from '@/context/AuthContext';
 import { CLAVES_ALMACENAMIENTO, servicioAlmacenamiento } from '@/services/storageService';
 
 const INTENTOS_MAXIMOS = 5;
@@ -18,6 +18,7 @@ interface EstadoInicioSesion {
 }
 
 export function useInicioSesion(): EstadoInicioSesion {
+  const { iniciarSesion } = useAuth();
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [mensajeError, setMensajeError] = useState<string | null>(null);
@@ -97,7 +98,7 @@ export function useInicioSesion(): EstadoInicioSesion {
 
     setCargando(true);
     try {
-      await servicioAutenticacion.iniciarSesion(correoLimpio, contrasena);
+      await iniciarSesion(correoLimpio, contrasena);
       await servicioAlmacenamiento.eliminarDato(CLAVES_ALMACENAMIENTO.intentosInicioSesion);
       await servicioAlmacenamiento.eliminarDato(CLAVES_ALMACENAMIENTO.bloqueoInicioSesion);
       setIntentos(0);
@@ -122,7 +123,7 @@ export function useInicioSesion(): EstadoInicioSesion {
     } finally {
       setCargando(false);
     }
-  }, [cargando, bloqueado, correo, contrasena, intentos]);
+  }, [cargando, bloqueado, correo, contrasena, intentos, iniciarSesion]);
 
   return {
     correo,

@@ -1,9 +1,8 @@
 import { router } from 'expo-router';
-import { usuarioMock } from '@/data/usuarioMock';
-import { servicioAlmacenamiento } from '@/services/storageService';
+import { useAuth } from '@/context/AuthContext';
 
 export function usePerfil() {
-  const usuario = usuarioMock; // TODO(alexander-auth): reemplazar por el usuario real del AuthContext
+  const { usuario, cerrarSesion: cerrarSesionAuth } = useAuth();
 
   const irAMisPedidos = () => router.push('/pedidos');
   const irAFavoritos = () => router.push('/(tabs)/favoritos');
@@ -13,7 +12,7 @@ export function usePerfil() {
   const irACentroAyuda = () => router.push('/centro-ayuda');
 
   const cerrarSesion = async () => {
-    await servicioAlmacenamiento.eliminarTokenSesion();
+    await cerrarSesionAuth();
     router.replace('/(auth)/login');
   };
 
