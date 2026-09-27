@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '@/constants/colors';
 import { ESPACIO, MEDIDAS, TIPOGRAFIA } from '@/constants/theme';
 import { useCarrito } from '@/hooks/useCarrito';
+import { useTema } from '@/hooks/useTema';
 
 const ICONOS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home-outline',
@@ -25,13 +25,24 @@ const ETIQUETAS: Record<string, string> = {
 export function BarraPestanas({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { contador } = useCarrito();
+  const { colores } = useTema();
 
   return (
-    <View style={[styles.contenedor, { paddingBottom: insets.bottom, height: MEDIDAS.alturaBarraPestanas + insets.bottom }]}>
+    <View
+      style={[
+        styles.contenedor,
+        {
+          backgroundColor: colores.papel,
+          borderTopColor: colores.borde,
+          paddingBottom: insets.bottom,
+          height: MEDIDAS.alturaBarraPestanas + insets.bottom,
+        },
+      ]}
+    >
       {state.routes.map((ruta, indice) => {
         const activo = state.index === indice;
         const nombreIcono = ICONOS[ruta.name] ?? 'ellipse-outline';
-        const color = activo ? COLORS.tinta : COLORS.tinta42;
+        const color = activo ? colores.tinta : colores.tinta42;
 
         const alPresionar = () => {
           const evento = navigation.emit({
@@ -56,8 +67,8 @@ export function BarraPestanas({ state, navigation }: BottomTabBarProps) {
             <View>
               <Ionicons name={nombreIcono} size={22} color={color} />
               {ruta.name === 'carrito' && contador > 0 ? (
-                <View style={styles.contador}>
-                  <Text style={styles.contadorTexto}>{contador}</Text>
+                <View style={[styles.contador, { backgroundColor: colores.arcilla }]}>
+                  <Text style={[styles.contadorTexto, { color: colores.papel }]}>{contador}</Text>
                 </View>
               ) : null}
             </View>
@@ -72,9 +83,7 @@ export function BarraPestanas({ state, navigation }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   contenedor: {
     flexDirection: 'row',
-    backgroundColor: COLORS.papel,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borde,
     paddingTop: ESPACIO.md,
   },
   destino: {
@@ -94,13 +103,11 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     paddingHorizontal: 3,
-    backgroundColor: COLORS.arcilla,
     alignItems: 'center',
     justifyContent: 'center',
   },
   contadorTexto: {
     fontFamily: TIPOGRAFIA.monoFuerte,
     fontSize: 9,
-    color: COLORS.papel,
   },
 });
