@@ -41,3 +41,6 @@ expo-env.d.ts
 *.njsproj
 *.sln
 *.sw?
+# Carpetas nativas generadas por expo prebuild / run:android / run:ios
+/android/
+/ios/

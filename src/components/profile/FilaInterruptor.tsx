@@ -1,6 +1,6 @@
 import { Switch, StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
 import { ESPACIO, MEDIDAS, TIPOGRAFIA } from '@/constants/theme';
+import { useTema } from '@/hooks/useTema';
 
 interface PropiedadesFilaInterruptor {
   titulo: string;
@@ -10,17 +10,19 @@ interface PropiedadesFilaInterruptor {
 }
 
 export function FilaInterruptor({ titulo, descripcion, valor, onCambiar }: PropiedadesFilaInterruptor) {
+  const { colores } = useTema();
+
   return (
-    <View style={styles.fila}>
+    <View style={[styles.fila, { borderBottomColor: colores.borde }]}>
       <View style={styles.textos}>
-        <Text style={styles.titulo}>{titulo}</Text>
-        {descripcion ? <Text style={styles.descripcion}>{descripcion}</Text> : null}
+        <Text style={[styles.titulo, { color: colores.tinta }]}>{titulo}</Text>
+        {descripcion ? <Text style={[styles.descripcion, { color: colores.textoSecundario }]}>{descripcion}</Text> : null}
       </View>
       <Switch
         value={valor}
         onValueChange={onCambiar}
-        trackColor={{ false: COLORS.tinta14, true: COLORS.tinta }}
-        thumbColor={COLORS.papel}
+        trackColor={{ false: colores.tinta14, true: colores.tinta }}
+        thumbColor={colores.blanco}
       />
     </View>
   );
@@ -35,10 +37,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: MEDIDAS.margenLateral,
     paddingVertical: ESPACIO.sm,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borde,
     gap: ESPACIO.md,
   },
   textos: { flex: 1, gap: 2 },
-  titulo: { fontFamily: TIPOGRAFIA.cuerpo, fontSize: 14, color: COLORS.tinta },
-  descripcion: { fontFamily: TIPOGRAFIA.mono, fontSize: 11, color: COLORS.textoSecundario },
+  titulo: { fontFamily: TIPOGRAFIA.cuerpo, fontSize: 14 },
+  descripcion: { fontFamily: TIPOGRAFIA.mono, fontSize: 11 },
 });
