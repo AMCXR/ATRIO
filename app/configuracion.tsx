@@ -1,4 +1,5 @@
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
+import { Alert, Platform, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EncabezadoPantalla } from '@/components/common/EncabezadoPantalla';
 import { FilaInterruptor } from '@/components/profile/FilaInterruptor';
@@ -15,6 +16,13 @@ export default function PantallaConfiguracion() {
 
   const manejarNotificaciones = async (activar: boolean) => {
     if (activar) {
+      if (isRunningInExpoGo() && Platform.OS === 'android') {
+        Alert.alert(
+          'No disponible en Expo Go',
+          'Las notificaciones en Android requieren un development build; en Expo Go dejaron de funcionar desde el SDK 53.',
+        );
+        return;
+      }
       const concedido = await servicioNotificaciones.solicitarPermiso();
       if (!concedido) {
         Alert.alert(
