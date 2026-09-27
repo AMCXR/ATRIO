@@ -5,3 +5,4 @@ export * from './Campana';
 export * from './Usuario';
 export * from './Direccion';
 export * from './Checkout';
+export * from './Admin';
