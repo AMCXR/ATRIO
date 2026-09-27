@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import { CarritoProvider } from '@/context/CarritoContext';
+import { CheckoutProvider } from '@/context/CheckoutContext';
 import { FavoritosProvider } from '@/context/FavoritosContext';
 import { ConfiguracionProvider } from '@/context/ConfiguracionContext';
 import { useFuentesApp } from '@/hooks/useFuentesApp';
@@ -19,13 +20,15 @@ export default function LayoutRaiz() {
         <ConfiguracionProvider>
           <FavoritosProvider>
             <CarritoProvider>
-              <StatusBar style="dark" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: COLORS.papel },
-                }}
-              />
+              <CheckoutProvider>
+                <StatusBar style="dark" />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: COLORS.papel },
+                  }}
+                />
+              </CheckoutProvider>
             </CarritoProvider>
           </FavoritosProvider>
         </ConfiguracionProvider>

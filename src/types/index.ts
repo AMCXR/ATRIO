@@ -3,3 +3,5 @@ export * from './Categoria';
 export * from './ItemCarrito';
 export * from './Campana';
 export * from './Usuario';
+export * from './Direccion';
+export * from './Checkout';

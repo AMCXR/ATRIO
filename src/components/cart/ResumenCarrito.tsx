@@ -6,6 +6,7 @@ import { formatearSoles } from '@/utils/moneda';
 
 interface PropiedadesResumenCarrito {
   resumen: ResumenCompra;
+  envio?: number | null;
 }
 
 interface PropiedadesFila {
@@ -32,7 +33,7 @@ function Fila({ etiqueta, valor, acento, total }: PropiedadesFila) {
   );
 }
 
-export function ResumenCarrito({ resumen }: PropiedadesResumenCarrito) {
+export function ResumenCarrito({ resumen, envio }: PropiedadesResumenCarrito) {
   return (
     <View style={styles.contenedor}>
       <Fila etiqueta="Subtotal" valor={formatearSoles(resumen.subtotal)} />
@@ -44,6 +45,9 @@ export function ResumenCarrito({ resumen }: PropiedadesResumenCarrito) {
         />
       ) : null}
       <Fila etiqueta="IGV (18 % incluido)" valor={formatearSoles(resumen.igv)} />
+      {envio != null ? (
+        <Fila etiqueta="Envío" valor={envio === 0 ? 'Gratis' : formatearSoles(envio)} />
+      ) : null}
       <View style={styles.separador} />
       <Fila etiqueta="Total" valor={formatearSoles(resumen.total)} total />
     </View>
