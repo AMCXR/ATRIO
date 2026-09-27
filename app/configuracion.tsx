@@ -5,6 +5,8 @@ import { FilaInterruptor } from '@/components/profile/FilaInterruptor';
 import { useConfiguracion } from '@/hooks/useConfiguracion';
 import { useTema } from '@/hooks/useTema';
 import { servicioNotificaciones } from '@/services/servicioNotificaciones';
+import { servicioCorreos } from '@/services/servicioCorreos';
+import { usuarioMock } from '@/data/usuarioMock';
 
 export default function PantallaConfiguracion() {
   const { preferencias, alternarPreferencia } = useConfiguracion();
@@ -27,6 +29,16 @@ export default function PantallaConfiguracion() {
     alternarPreferencia('notificaciones');
   };
 
+  const manejarCorreosPromocionales = async (activar: boolean) => {
+    const exito = activar
+      ? await servicioCorreos.suscribir(usuarioMock.correo)
+      : await servicioCorreos.cancelarSuscripcion(usuarioMock.correo);
+
+    if (exito) {
+      alternarPreferencia('correosPromocionales');
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.contenedor, { backgroundColor: colores.papel }]} edges={['top']}>
       <ScrollView>
@@ -47,7 +59,7 @@ export default function PantallaConfiguracion() {
           titulo="Correos promocionales"
           descripcion="Ofertas y descuentos por correo"
           valor={preferencias.correosPromocionales}
-          onCambiar={() => alternarPreferencia('correosPromocionales')}
+          onCambiar={manejarCorreosPromocionales}
         />
         <FilaInterruptor
           titulo="Biometría"
