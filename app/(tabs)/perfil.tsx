@@ -3,12 +3,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ESPACIO, MEDIDAS, TIPOGRAFIA } from '@/constants/theme';
 import { EncabezadoPantalla } from '@/components/common/EncabezadoPantalla';
 import { FilaOpcionPerfil } from '@/components/profile/FilaOpcionPerfil';
+import { useAuth } from '@/context/AuthContext';
 import { usePerfil } from '@/hooks/usePerfil';
 import { useTema } from '@/hooks/useTema';
 
 export default function PantallaPerfil() {
   const {
-    usuario,
     irAMisPedidos,
     irAFavoritos,
     irADirecciones,
@@ -17,6 +17,7 @@ export default function PantallaPerfil() {
     irACentroAyuda,
     cerrarSesion,
   } = usePerfil();
+  const { usuario } = useAuth();
   const { colores } = useTema();
 
   return (
@@ -25,9 +26,10 @@ export default function PantallaPerfil() {
         <EncabezadoPantalla titulo="Perfil" />
 
         <View style={styles.tarjetaUsuario}>
-          <Text style={[styles.nombre, { color: colores.tinta }]}>{usuario.nombre}</Text>
-          <Text style={[styles.dato, { color: colores.textoSecundario }]}>{usuario.correo}</Text>
-          <Text style={[styles.dato, { color: colores.textoSecundario }]}>{usuario.telefono}</Text>
+          <Text style={styles.nombre}>{usuario?.nombre ?? 'Usuario'}</Text>
+          <Text style={styles.dato}>{usuario?.email ?? ''}</Text>
+          <Text style={styles.dato}>{usuario?.celular ?? ''}</Text>
+          <Text style={styles.dato}>{usuario?.rol === 'propietaria' ? 'PROPIETARIA' : 'CLIENTE'}</Text>
         </View>
 
         <View style={styles.seccion}>

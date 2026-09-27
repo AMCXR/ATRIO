@@ -2,6 +2,8 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/colors';
+import { AuthProvider } from '@/context/AuthContext';
 import { CarritoProvider } from '@/context/CarritoContext';
 import { CheckoutProvider } from '@/context/CheckoutContext';
 import { FavoritosProvider } from '@/context/FavoritosContext';
@@ -34,13 +36,15 @@ export default function LayoutRaiz() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ConfiguracionProvider>
-          <FavoritosProvider>
-            <CarritoProvider>
-              <CheckoutProvider>
-                <ContenidoApp />
-              </CheckoutProvider>
-            </CarritoProvider>
-          </FavoritosProvider>
+          <AuthProvider>
+            <FavoritosProvider>
+              <CarritoProvider>
+                <CheckoutProvider>
+                  <ContenidoApp />
+                </CheckoutProvider>
+              </CarritoProvider>
+            </FavoritosProvider>
+          </AuthProvider>
         </ConfiguracionProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
