@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '@/constants/colors';
 import { ESPACIO, MEDIDAS, TIPOGRAFIA } from '@/constants/theme';
+import { useTema } from '@/hooks/useTema';
 
 interface PropiedadesEncabezadoPantalla {
   titulo: string;
@@ -20,6 +20,8 @@ export function EncabezadoPantalla({
   derecha,
   conBotonVolver = false,
 }: PropiedadesEncabezadoPantalla) {
+  const { colores } = useTema();
+
   return (
     <View style={styles.contenedor}>
       <View style={styles.fila}>
@@ -32,14 +34,16 @@ export function EncabezadoPantalla({
               onPress={() => router.back()}
               style={styles.botonVolver}
             >
-              <Ionicons name="chevron-back" size={24} color={COLORS.tinta} />
+              <Ionicons name="chevron-back" size={24} color={colores.tinta} />
             </Pressable>
           ) : null}
-          <Text style={[styles.titulo, { fontSize: tamanoTitulo }]}>{titulo}</Text>
+          <Text style={[styles.titulo, { fontSize: tamanoTitulo, color: colores.tinta }]}>{titulo}</Text>
         </View>
         {derecha ? <View>{derecha}</View> : null}
       </View>
-      {subtitulo ? <Text style={styles.subtitulo}>{subtitulo}</Text> : null}
+      {subtitulo ? (
+        <Text style={[styles.subtitulo, { color: colores.textoSecundario }]}>{subtitulo}</Text>
+      ) : null}
     </View>
   );
 }
@@ -71,13 +75,11 @@ const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: TIPOGRAFIA.titulo,
-    color: COLORS.tinta,
   },
   subtitulo: {
     marginTop: ESPACIO.xs,
     fontFamily: TIPOGRAFIA.mono,
     fontSize: 10,
     letterSpacing: 1,
-    color: COLORS.textoSecundario,
   },
 });
