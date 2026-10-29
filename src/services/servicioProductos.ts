@@ -33,6 +33,34 @@ function generarIdProducto(nombre: string): string {
   return `${base || 'producto'}-${Date.now().toString(36)}`;
 }
 
+export const PRODUCTOS_POR_PAGINA = 20;
+
+export interface OpcionesPaginaCatalogo {
+  /** 'todo' o undefined: sin filtro de categoría. */
+  categoriaId?: string;
+  busqueda?: string;
+  precioMax?: number | null;
+  tallas?: string[];
+  colores?: string[];
+  soloDisponibles?: boolean;
+  orden?: 'novedad' | 'precio' | 'popularidad';
+  /** Empieza en 1. */
+  pagina?: number;
+}
+
+export interface PaginaCatalogo {
+  productos: Producto[];
+  hayMas: boolean;
+  /** Total de productos que cumplen los filtros (para el contador de resultados). */
+  total: number;
+}
+
+// El término va dentro de un filtro `or(...)` de PostgREST: se quitan los
+// caracteres que rompen esa sintaxis o que ilike trata como comodines.
+function limpiarTerminoBusqueda(termino: string): string {
+  return termino.replace(/[%_,()"\\*]/g, ' ').trim();
+}
+
 async function obtenerProductoPorIdInterno(id: string): Promise<Producto | undefined> {
   const { data, error } = await requerirSupabase()
     .from('productos')
@@ -68,6 +96,77 @@ export const servicioProductos = {
 
     if (error) throw new Error(`No se pudieron cargar los productos: ${error.message}`);
     return (data ?? []).map((fila) => mapearProducto(fila as unknown as FilaProductoSupabase));
+  },
+
+  /**
+   * Catálogo paginado en el servidor, de PRODUCTOS_POR_PAGINA en
+   * PRODUCTOS_POR_PAGINA. Replica los filtros que antes hacía useCatalogo en
+   * memoria: búsqueda por nombre o categoría, precio máximo, tallas y colores
+   * con stock, y solo disponibles.
+   */
+  async obtenerPaginaCatalogo({
+    categoriaId,
+    busqueda = '',
+    precioMax = null,
+    tallas = [],
+    colores = [],
+    soloDisponibles = false,
+    orden = 'novedad',
+    pagina = 1,
+  }: OpcionesPaginaCatalogo = {}): Promise<PaginaCatalogo> {
+    const cliente = requerirSupabase();
+
+    // Cada filtro por variantes usa su propio embed `!inner` con alias: así
+    // filtra qué productos vuelven sin recortar `variantes_producto`, que
+    // sigue trayendo todas las variantes del producto. Son embeds separados
+    // porque, igual que antes, la talla y el color pueden cumplirse en
+    // variantes distintas.
+    const embedsFiltro: string[] = [];
+    if (tallas.length > 0) embedsFiltro.push('filtro_talla:variantes_producto!inner(talla, stock)');
+    if (colores.length > 0) embedsFiltro.push('filtro_color:variantes_producto!inner(color_id, stock)');
+    if (soloDisponibles) embedsFiltro.push('filtro_stock:variantes_producto!inner(stock)');
+    const select = [SELECT_PRODUCTO, ...embedsFiltro].join(',\n');
+
+    let consulta = cliente
+      .from('productos')
+      .select(select, { count: 'exact' })
+      .eq('activo', true);
+
+    if (categoriaId && categoriaId !== 'todo') consulta = consulta.eq('categoria_id', categoriaId);
+    if (precioMax != null) consulta = consulta.lte('precio', precioMax);
+    if (tallas.length > 0) consulta = consulta.gt('filtro_talla.stock', 0).in('filtro_talla.talla', tallas);
+    if (colores.length > 0) consulta = consulta.gt('filtro_color.stock', 0).in('filtro_color.color_id', colores);
+    if (soloDisponibles) consulta = consulta.gt('filtro_stock.stock', 0);
+
+    const termino = limpiarTerminoBusqueda(busqueda);
+    if (termino) {
+      // Antes la búsqueda también coincidía con el nombre de la categoría:
+      // se buscan esas categorías primero y se combinan con un `or`.
+      const { data: categoriasCoincidentes, error: errorCategorias } = await cliente
+        .from('categorias')
+        .select('id')
+        .ilike('nombre', `%${termino}%`);
+      if (errorCategorias) throw new Error(`No se pudo buscar en las categorías: ${errorCategorias.message}`);
+      const ids = (categoriasCoincidentes ?? []).map((fila) => `"${(fila as { id: string }).id}"`);
+      consulta =
+        ids.length > 0
+          ? consulta.or(`nombre.ilike.%${termino}%,categoria_id.in.(${ids.join(',')})`)
+          : consulta.ilike('nombre', `%${termino}%`);
+    }
+
+    if (orden === 'precio') consulta = consulta.order('precio', { ascending: true });
+    if (orden === 'popularidad') consulta = consulta.order('popularidad_30d', { ascending: false });
+    // Desempate estable: sin él, productos empatados podían repetirse o
+    // saltarse entre una página y la siguiente.
+    consulta = consulta.order('fecha_alta', { ascending: false }).order('id', { ascending: true });
+
+    const desde = (Math.max(1, pagina) - 1) * PRODUCTOS_POR_PAGINA;
+    const { data, error, count } = await consulta.range(desde, desde + PRODUCTOS_POR_PAGINA - 1);
+    if (error) throw new Error(`No se pudieron cargar los productos: ${error.message}`);
+
+    const productos = (data ?? []).map((fila) => mapearProducto(fila as unknown as FilaProductoSupabase));
+    const total = count ?? desde + productos.length;
+    return { productos, hayMas: desde + productos.length < total, total };
   },
 
   // Sin filtro de `activo` a propósito: carrito, favoritos y admin necesitan
