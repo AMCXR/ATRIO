@@ -61,7 +61,10 @@ export const servicioProductos = {
     const { data, error } = await requerirSupabase()
       .from('productos')
       .select(SELECT_PRODUCTO)
-      .order('fecha_alta', { ascending: false });
+      .order('fecha_alta', { ascending: false })
+      // fecha_alta es solo fecha: sin este desempate, los productos del mismo
+      // día podían volver en otro orden después de editarlos.
+      .order('id', { ascending: true });
 
     if (error) throw new Error(`No se pudieron cargar los productos: ${error.message}`);
     return (data ?? []).map((fila) => mapearProducto(fila as unknown as FilaProductoSupabase));

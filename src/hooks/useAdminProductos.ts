@@ -59,10 +59,12 @@ export function useAdminProductos() {
 
   const alternarActivo = useCallback(
     async (id: string) => {
-      await servicioProductos.alternarActivo(id);
-      await recargar();
+      // Se reemplaza solo esa fila en su lugar, sin recargar toda la lista:
+      // así el producto no cambia de posición al activarlo o desactivarlo.
+      const actualizado = await servicioProductos.alternarActivo(id);
+      setProductos((previos) => previos.map((p) => (p.id === id ? actualizado : p)));
     },
-    [recargar],
+    [],
   );
 
   return {
