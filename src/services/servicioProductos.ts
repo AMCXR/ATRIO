@@ -316,16 +316,25 @@ export const servicioProductos = {
     return actualizado;
   },
 
+  // Dos viajes en vez de tres: se lee solo la columna `activo` y el update
+  // devuelve el producto completo en la misma respuesta.
   async alternarActivo(id: string): Promise<Producto> {
-    const actual = await obtenerProductoPorIdInterno(id);
+    const cliente = requerirSupabase();
+    const { data: actual, error: errorLectura } = await cliente
+      .from('productos')
+      .select('activo')
+      .eq('id', id)
+      .maybeSingle();
+    if (errorLectura) throw new Error(`No se pudo leer el estado del producto: ${errorLectura.message}`);
     if (!actual) throw new Error(`El producto "${id}" no existe.`);
 
-    const cliente = requerirSupabase();
-    const { error } = await cliente.from('productos').update({ activo: !actual.activo }).eq('id', id);
+    const { data, error } = await cliente
+      .from('productos')
+      .update({ activo: !(actual as { activo: boolean }).activo })
+      .eq('id', id)
+      .select(SELECT_PRODUCTO)
+      .single();
     if (error) throw new Error(`No se pudo cambiar el estado del producto: ${error.message}`);
-
-    const actualizado = await obtenerProductoPorIdInterno(id);
-    if (!actualizado) throw new Error(`El producto "${id}" no existe.`);
-    return actualizado;
+    return mapearProducto(data as unknown as FilaProductoSupabase);
   },
 };

@@ -61,8 +61,17 @@ export function useAdminProductos() {
     async (id: string) => {
       // Se reemplaza solo esa fila en su lugar, sin recargar toda la lista:
       // así el producto no cambia de posición al activarlo o desactivarlo.
-      const actualizado = await servicioProductos.alternarActivo(id);
-      setProductos((previos) => previos.map((p) => (p.id === id ? actualizado : p)));
+      // El cambio se ve al instante y se revierte si Supabase lo rechaza.
+      const invertir = (previos: Producto[]) =>
+        previos.map((p) => (p.id === id ? { ...p, activo: !p.activo } : p));
+      setProductos(invertir);
+      try {
+        const actualizado = await servicioProductos.alternarActivo(id);
+        setProductos((previos) => previos.map((p) => (p.id === id ? actualizado : p)));
+      } catch (err) {
+        setProductos(invertir);
+        setError(err instanceof Error ? err.message : 'No se pudo cambiar el estado del producto.');
+      }
     },
     [],
   );
