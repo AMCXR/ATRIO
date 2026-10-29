@@ -20,6 +20,8 @@ export function FilaFavorito({
   alQuitarFavorito,
   alAgregar,
 }: PropiedadesFilaFavorito) {
+  const noDisponible = producto.activo === false;
+
   return (
     <View style={styles.contenedor}>
       <Pressable style={styles.miniatura} onPress={alPresionar} accessibilityRole="button">
@@ -34,9 +36,7 @@ export function FilaFavorito({
             </Text>
             <Text style={styles.categoria}>{producto.categoriaNombre}</Text>
             <Text style={styles.precio}>{formatearSoles(producto.precio)}</Text>
-            {producto.activo === false ? (
-              <Text style={styles.noDisponible}>Ya no disponible</Text>
-            ) : null}
+            {noDisponible ? <Text style={styles.noDisponible}>Ya no disponible</Text> : null}
           </Pressable>
           <Pressable
             onPress={alQuitarFavorito}
@@ -48,7 +48,13 @@ export function FilaFavorito({
           </Pressable>
         </View>
 
-        <BotonPrimario texto="AÑADIR" onPress={alAgregar} altura={40} style={styles.boton} />
+        <BotonPrimario
+          texto={noDisponible ? 'NO DISPONIBLE' : 'AÑADIR'}
+          onPress={alAgregar}
+          deshabilitado={noDisponible}
+          altura={40}
+          style={styles.boton}
+        />
       </View>
     </View>
   );
