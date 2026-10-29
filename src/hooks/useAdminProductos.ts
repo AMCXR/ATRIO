@@ -21,7 +21,7 @@ export function useAdminProductos() {
     setError(null);
     try {
       const [productosCargados, categoriasCargadas] = await Promise.all([
-        servicioProductos.obtenerProductos(),
+        servicioProductos.obtenerProductosAdmin(),
         servicioProductos.obtenerCategorias(),
       ]);
       setProductos(productosCargados);

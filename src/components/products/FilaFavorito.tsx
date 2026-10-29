@@ -34,6 +34,9 @@ export function FilaFavorito({
             </Text>
             <Text style={styles.categoria}>{producto.categoriaNombre}</Text>
             <Text style={styles.precio}>{formatearSoles(producto.precio)}</Text>
+            {producto.activo === false ? (
+              <Text style={styles.noDisponible}>Ya no disponible</Text>
+            ) : null}
           </Pressable>
           <Pressable
             onPress={alQuitarFavorito}
@@ -76,5 +79,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.tinta,
   },
+  noDisponible: { fontFamily: TIPOGRAFIA.etiqueta, fontSize: 11, color: COLORS.arcilla },
   boton: { alignSelf: 'flex-start', paddingHorizontal: ESPACIO.xl, marginTop: ESPACIO.sm },
 });

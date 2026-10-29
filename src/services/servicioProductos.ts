@@ -44,7 +44,20 @@ async function obtenerProductoPorIdInterno(id: string): Promise<Producto | undef
 }
 
 export const servicioProductos = {
+  /** Catálogo público: solo productos activos. */
   async obtenerProductos(): Promise<Producto[]> {
+    const { data, error } = await requerirSupabase()
+      .from('productos')
+      .select(SELECT_PRODUCTO)
+      .eq('activo', true)
+      .order('fecha_alta', { ascending: false });
+
+    if (error) throw new Error(`No se pudieron cargar los productos: ${error.message}`);
+    return (data ?? []).map((fila) => mapearProducto(fila as unknown as FilaProductoSupabase));
+  },
+
+  /** Panel admin: incluye los inactivos para poder volver a activarlos. */
+  async obtenerProductosAdmin(): Promise<Producto[]> {
     const { data, error } = await requerirSupabase()
       .from('productos')
       .select(SELECT_PRODUCTO)
@@ -54,6 +67,8 @@ export const servicioProductos = {
     return (data ?? []).map((fila) => mapearProducto(fila as unknown as FilaProductoSupabase));
   },
 
+  // Sin filtro de `activo` a propósito: carrito, favoritos y admin necesitan
+  // leer también productos desactivados para marcarlos como no disponibles.
   async obtenerProductoPorId(id: string): Promise<Producto | undefined> {
     return obtenerProductoPorIdInterno(id);
   },
@@ -63,6 +78,7 @@ export const servicioProductos = {
       .from('productos')
       .select(SELECT_PRODUCTO)
       .eq('es_novedad', true)
+      .eq('activo', true)
       .order('fecha_alta', { ascending: false })
       .limit(limite);
 
@@ -75,7 +91,7 @@ export const servicioProductos = {
     const [{ data: filasCategorias, error: errorCategorias }, { data: filasProductos, error: errorProductos }] =
       await Promise.all([
         cliente.from('categorias').select('id, nombre, subcategorias, imagen_url'),
-        cliente.from('productos').select('categoria_id'),
+        cliente.from('productos').select('categoria_id, activo').eq('activo', true),
       ]);
 
     if (errorCategorias) throw new Error(`No se pudieron cargar las categorías: ${errorCategorias.message}`);
